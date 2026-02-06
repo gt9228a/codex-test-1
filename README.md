@@ -20,6 +20,16 @@ npm start
 
 Server starts on `http://localhost:3000`.
 
+## Run with Docker
+
+Build and run with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Then access the API at `http://localhost:3000`.
+
 ## API examples
 
 Health check:
