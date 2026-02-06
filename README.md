@@ -1,39 +1,60 @@
-# Shelfmark + Debrid App Blueprint
+# Reading + Debrid API (MVP Prototype)
 
-This repository now contains a concrete build plan for an app inspired by:
+This repository now contains a runnable backend prototype for a Shelfmark/ReadMeABook-style app with built-in Debrid provider support.
 
-- https://github.com/calibrain/shelfmark
-- https://github.com/kikootwo/ReadMeABook
+## What is implemented
 
-## Product goal
+- ✅ Debrid provider abstraction (`DebridProvider`).
+- ✅ TorBox provider adapter scaffold.
+- ✅ In-memory library + resolve job store.
+- ✅ HTTP API endpoints for:
+  - provider credential validation
+  - library create/list/update
+  - candidate generation + resolve start + resolve status polling
 
-Build a self-hostable reading + listening workflow app that can:
+## Quick start
 
-1. Track books, reading status, and progress.
-2. Ingest from user libraries and watchlists.
-3. Resolve downloadable/cached sources via Debrid providers (TorBox first, then others).
-4. Send files/streams to reading clients (web reader, Audiobookshelf, Kavita, etc.).
+```bash
+npm start
+```
 
-## What is included
+Server starts on `http://localhost:3000`.
 
-- `docs/product-spec.md`: MVP and feature scope.
-- `docs/system-architecture.md`: Backend/services architecture.
-- `docs/debrid-provider-contract.md`: provider adapter interface and normalization rules.
-- `docs/api-first-endpoints.md`: API endpoint draft for building the backend first.
+## API examples
 
-## Suggested implementation stack
+Health check:
 
-- **Frontend**: Next.js + TypeScript + Tailwind.
-- **Backend API**: Fastify (or NestJS) + TypeScript.
-- **Jobs/Workers**: BullMQ + Redis.
-- **Database**: PostgreSQL + Prisma.
-- **Auth**: NextAuth/Auth.js (OAuth + local).
-- **Storage**: S3-compatible + local filesystem fallback.
+```bash
+curl http://localhost:3000/health
+```
 
-## Next steps
+Validate TorBox API key:
 
-1. Scaffold monorepo (`apps/web`, `apps/api`, `packages/core`).
-2. Implement Debrid adapter abstraction and TorBox adapter.
-3. Add metadata ingestion (OpenLibrary/Google Books).
-4. Add queue-based download + transcoding pipeline.
-5. Ship MVP dashboard and library views.
+```bash
+curl -X POST http://localhost:3000/providers/torbox/validate \
+  -H 'content-type: application/json' \
+  -d '{"apiKey":"your-api-key-here"}'
+```
+
+Create a library book:
+
+```bash
+curl -X POST http://localhost:3000/library/books \
+  -H 'content-type: application/json' \
+  -d '{"title":"The Hobbit","author":"J.R.R. Tolkien"}'
+```
+
+Resolve candidates:
+
+```bash
+curl -X POST http://localhost:3000/resolve/candidates \
+  -H 'content-type: application/json' \
+  -d '{"title":"The Hobbit","author":"J.R.R. Tolkien"}'
+```
+
+## Next implementation steps
+
+1. Replace in-memory store with PostgreSQL.
+2. Wire real TorBox API calls in provider methods.
+3. Add background queue workers for long-running downloads.
+4. Add web frontend for library/progress UX.
